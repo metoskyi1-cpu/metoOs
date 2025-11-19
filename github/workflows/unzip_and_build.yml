@@ -3,7 +3,7 @@ name: Build Meto OS APK from ZIP
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch: # يسمح بتشغيله يدويًا
+  workflow_dispatch: 
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    # 1. فك ضغط الملف المضغوط - ملاحظة: تم تعديل اسم الملف ليطابق ما رفعته "MetoOS-Project-Files.zip"
+    # 1. فك ضغط الملف المضغوط (يجب أن يكون الاسم مطابقًا لاسم الملف المرفوع)
     - name: Unzip Source Code
       run: unzip MetoOS-Project-Files.zip 
       
@@ -25,14 +25,15 @@ jobs:
         distribution: 'temurin'
         cache: gradle
         
-    # 3. منح صلاحية التنفيذ لأداة Gradle (ضروري)
+    # 3. منح صلاحية التنفيذ لأداة Gradle (ضروري: نستخدم المسار داخل مجلد ZIP)
     - name: Grant execute permission for gradlew
       run: chmod +x MetoOS-Project-Files/gradlew
       
-    # 4. بناء ملف APK
+    # 4. بناء ملف APK (نستخدم المسار داخل مجلد ZIP)
     - name: Build debug APK (Meto OS)
       run: ./MetoOS-Project-Files/gradlew assembleDebug
 
+    # 5. رفع ملف APK الجاهز
     - name: Upload APK artifact
       uses: actions/upload-artifact@v3
       with:
