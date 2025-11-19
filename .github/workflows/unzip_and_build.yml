@@ -1,4 +1,4 @@
-name: Build Meto OS APK from ZIP
+name: Build Meto OS APK from ZIP Final
 
 on:
   push:
@@ -13,9 +13,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    # 1. فك ضغط الملف المضغوط (يجب أن يكون الاسم مطابقًا لاسم الملف المرفوع)
+    # 1. فك ضغط الملف المضغوط (مع مسار لضمان أننا نعرف أين يذهب)
     - name: Unzip Source Code
-      run: unzip MetoOS-Project-Files.zip 
+      run: |
+        unzip MetoOS-Project-Files.zip 
+        # إعادة تسمية المجلد لضمان التناسق
+        mv MetoOS-Project-Files metoos_app_root
       
     # 2. إعداد بيئة بناء الأندرويد
     - name: Set up JDK 17
@@ -25,18 +28,17 @@ jobs:
         distribution: 'temurin'
         cache: gradle
         
-    # 3. منح صلاحية التنفيذ لأداة Gradle 
+    # 3. منح صلاحية التنفيذ (باستخدام المسار الجديد المؤكد)
     - name: Grant execute permission for gradlew
-      run: chmod +x MetoOS-Project-Files/gradlew
+      run: chmod +x metoos_app_root/gradlew
       
-    # 4. بناء ملف APK 
+    # 4. بناء ملف APK (باستخدام المسار الجديد المؤكد)
     - name: Build debug APK (Meto OS)
-      run: ./MetoOS-Project-Files/gradlew assembleDebug
+      run: ./metoos_app_root/gradlew assembleDebug
 
-    # 5. رفع ملف APK الجاهز (هنا يتم تحديد المسار الصحيح للمجلد الذي تم فك ضغطه)
+    # 5. رفع ملف APK الجاهز (باستخدام المسار الجديد المؤكد)
     - name: Upload APK artifact
       uses: actions/upload-artifact@v3
       with:
         name: MetoOS-Ready-APK
-        path: MetoOS-Project-Files/app/build/outputs/apk/debug/app-debug.apk 
-
+        path: metoos_app_root/app/build/outputs/apk/debug/app-debug.apk 
