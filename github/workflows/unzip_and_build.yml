@@ -1,0 +1,40 @@
+name: Build Meto OS APK from ZIP
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # يسمح بتشغيله يدويًا
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    # 1. فك ضغط الملف المضغوط - ملاحظة: تم تعديل اسم الملف ليطابق ما رفعته "MetoOS-Project-Files.zip"
+    - name: Unzip Source Code
+      run: unzip MetoOS-Project-Files.zip 
+      
+    # 2. إعداد بيئة بناء الأندرويد
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+        
+    # 3. منح صلاحية التنفيذ لأداة Gradle (ضروري)
+    - name: Grant execute permission for gradlew
+      run: chmod +x MetoOS-Project-Files/gradlew
+      
+    # 4. بناء ملف APK
+    - name: Build debug APK (Meto OS)
+      run: ./MetoOS-Project-Files/gradlew assembleDebug
+
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: MetoOS-Ready-APK
+        path: MetoOS-Project-Files/app/build/outputs/apk/debug/app-debug.apk 
