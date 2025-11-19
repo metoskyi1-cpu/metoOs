@@ -1,4 +1,4 @@
-name: Meto OS Final Build V15 (APK Retrieval)
+name: Meto OS Final Build V16 (Extract APK Path)
 
 on: [push, workflow_dispatch]
 
@@ -12,15 +12,23 @@ jobs:
     - name: Unzip Source Code
       run: unzip MetoOS-Project-Files.zip -d build_root
       
-    # 2. البحث عن ملف gradlew ومنحه صلاحية التنفيذ والبناء
+    # 2. البناء (استخدام أمر find الذي نجح سابقًا)
     - name: Find and Build Meto OS
       run: |
         find build_root -name gradlew -exec chmod +x {} \;
         find build_root -name gradlew -execdir ./gradlew assembleDebug \;
         
-    # 3. رفع ملف APK (البحث عن أي ملف APK داخل build_root)
+    # 3. **الخطوة الجديدة: البحث عن ملف APK وتخزين مساره**
+    - name: Find APK File Path
+      id: find_apk
+      run: |
+        APK_PATH=$(find build_root -name 'app-debug.apk' -print -quit)
+        echo "Found APK at: $APK_PATH"
+        echo "apk_file_path=$APK_PATH" >> $GITHUB_OUTPUT
+
+    # 4. رفع ملف APK باستخدام المسار المخزن
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: MetoOS-Ready-APK
-        path: build_root/**/*.apk 
+        path: ${{ steps.find_apk.outputs.apk_file_path }}
