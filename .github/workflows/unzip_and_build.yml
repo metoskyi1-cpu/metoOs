@@ -1,9 +1,6 @@
-name: Meto OS Final Build V9
+name: Meto OS Final Build V12 (Clean)
 
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch: 
+on: [push, workflow_dispatch]
 
 jobs:
   build:
@@ -11,12 +8,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
+    # 1. فك الضغط (مسار بسيط)
     - name: Unzip Source Code
       run: unzip MetoOS-Project-Files.zip -d build_root
       
-    - name: Debug: List contents of extracted folder
-      run: ls -R build_root
-      
+    # 2. إعداد بيئة بناء الأندرويد
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
@@ -24,12 +20,13 @@ jobs:
         distribution: 'temurin'
         cache: gradle
         
-    - name: Grant execute permission for gradlew
-      run: chmod +x build_root/MetoOS-Project-Files/gradlew
+    # 3. منح الصلاحية وتشغيل البناء في خطوة واحدة
+    - name: Grant permission and Build Meto OS
+      run: |
+        chmod +x build_root/MetoOS-Project-Files/gradlew
+        cd build_root/MetoOS-Project-Files && ./gradlew assembleDebug
 
-    - name: Run Build
-      run: cd build_root/MetoOS-Project-Files && ./gradlew assembleDebug
-
+    # 4. رفع ملف APK
     - name: Upload APK artifact
       uses: actions/upload-artifact@v3
       with:
