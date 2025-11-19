@@ -1,4 +1,4 @@
-name: Meto OS Final Build V13 (Final Path Fix)
+name: Meto OS Final Build V14 (Find & Exec)
 
 on: [push, workflow_dispatch]
 
@@ -8,16 +8,21 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    # 1. فك الضغط ومنح الصلاحية والبناء كلها في خطوة واحدة
-    - name: Unzip and Build Meto OS (New Path)
+    # 1. فك ضغط الملف
+    - name: Unzip Source Code
+      run: unzip MetoOS-Project-Files.zip -d build_root
+      
+    # 2. البحث عن ملف gradlew ومنحه صلاحية التنفيذ والبناء (حل نهائي للمسار)
+    - name: Find and Build Meto OS
       run: |
-        unzip MetoOS-Project-Files.zip -d build_root
-        chmod +x build_root/gradlew
-        cd build_root && ./gradlew assembleDebug
-
-    # 2. رفع ملف APK (تم التحديث إلى v4)
+        # يجد ملف gradlew ويعطيه صلاحية التنفيذ
+        find build_root -name gradlew -exec chmod +x {} \;
+        # يجد ملف gradlew ويشغل أمر البناء منه
+        find build_root -name gradlew -execdir ./gradlew assembleDebug \;
+        
+    # 3. رفع ملف APK (نستخدم البحث العام لضمان العثور عليه)
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: MetoOS-Ready-APK
-        path: build_root/app/build/outputs/apk/debug/app-debug.apk 
+        path: build_root/**/app/build/outputs/apk/debug/app-debug.apk 
