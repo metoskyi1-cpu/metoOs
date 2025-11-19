@@ -1,44 +1,19 @@
-name: Build Meto OS APK from ZIP Final
-
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch: 
-
-jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    
-    # 1. فك ضغط الملف المضغوط (مع مسار لضمان أننا نعرف أين يذهب)
-    - name: Unzip Source Code
+     # 3. منح صلاحية التنفيذ للجرادل (البحث التلقائي)
+    - name: Find and Grant execute permission for gradlew
       run: |
-        unzip MetoOS-Project-Files.zip 
-        # إعادة تسمية المجلد لضمان التناسق
-        mv MetoOS-Project-Files metoos_app_root
-      
-    # 2. إعداد بيئة بناء الأندرويد
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
-        
-    # 3. منح صلاحية التنفيذ (باستخدام المسار الجديد المؤكد)
-    - name: Grant execute permission for gradlew
-      run: chmod +x metoos_app_root/gradlew
-      
-    # 4. بناء ملف APK (باستخدام المسار الجديد المؤكد)
-    - name: Build debug APK (Meto OS)
-      run: ./metoos_app_root/gradlew assembleDebug
+        find . -name gradlew -exec chmod +x {} \;
 
-    # 5. رفع ملف APK الجاهز (باستخدام المسار الجديد المؤكد)
+    # 4. بناء ملف APK (باستخدام أداة البحث عن الملفات)
+    - name: Build debug APK (Meto OS)
+      run: |
+        GRADLEW_PATH=$(find . -name gradlew -print -quit)
+        GRADLEW_DIR=$(dirname "$GRADLEW_PATH")
+        cd $GRADLEW_DIR && ./gradlew assembleDebug
+
+    # 5. رفع ملف APK الجاهز (باستخدام البحث العام)
     - name: Upload APK artifact
       uses: actions/upload-artifact@v3
       with:
         name: MetoOS-Ready-APK
-        path: metoos_app_root/app/build/outputs/apk/debug/app-debug.apk 
+        path: **/*app/build/outputs/apk/debug/app-debug.apk 
+
