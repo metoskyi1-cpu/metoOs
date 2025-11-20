@@ -12,19 +12,16 @@ jobs:
     - name: Unzip Source Code
       run: unzip MetoOS-Project-Files.zip -d build_root
       
-    # 2. البناء
+    # 2. البناء (الذي ينجح)
     - name: Find and Build Meto OS
       run: |
-        # البحث عن ملف gradlew في أي مكان داخل build_root ومنحه صلاحيات التنفيذ
         find build_root -name gradlew -exec chmod +x {} \;
-        # تنفيذ الأمر assembleDebug من نفس مجلد gradlew
         find build_root -name gradlew -execdir ./gradlew assembleDebug \;
         
     # 3. **الرفع بالبحث الشامل والاجباري عن أي ملف .apk**
     - name: Upload APK artifact (Universal Recursive Search)
-      uses: actions/upload-artifact@v4 # استخدام الإصدار الحديث لتجنب أخطاء الـ Deprecation
+      uses: actions/upload-artifact@v4 
       with:
         name: MetoOS-Ready-APK
         # البحث في كل مكان (**) داخل مجلد build_root عن أي ملف .apk
         path: build_root/**/*.apk  
-        # هذا الخيار يجبر الأمر على رفع أي ملف apk يجده
