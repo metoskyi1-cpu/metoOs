@@ -1,4 +1,4 @@
-name: Meto OS Final Build V18 (Standard APK Path)
+name: Meto OS Final Build V19 (Ultimate Path Debug)
 
 on: [push, workflow_dispatch]
 
@@ -18,7 +18,14 @@ jobs:
         find build_root -name gradlew -exec chmod +x {} \;
         find build_root -name gradlew -execdir ./gradlew assembleDebug \;
         
-    # 3. رفع ملف APK (باستخدام المسار القياسي الذي تم تأكيده)
+    # 3. **خطوة التصحيح الجديدة: البحث وطباعة المسار**
+    - name: Debug: Find and Print APK Path
+      run: |
+        echo "Listing all files ending in .apk:"
+        find build_root -name "*.apk" -print
+        echo "--- End of APK Search ---"
+        
+    # 4. الرفع (نستخدم المسار الذي يفشل حاليًا كآخر محاولة)
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
