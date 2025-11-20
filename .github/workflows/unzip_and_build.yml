@@ -1,4 +1,4 @@
-name: Meto OS Final Build V22 (Ultimate Guaranteed Path)
+name: Meto OS Final Build V23 (Ultimate Workspace Search)
 
 on: [push, workflow_dispatch]
 
@@ -18,10 +18,10 @@ jobs:
         find build_root -name gradlew -exec chmod +x {} \;
         find build_root -name gradlew -execdir ./gradlew assembleDebug \;
         
-    # 3. **الرفع: استخدام المسار المباشر الأكثر احتمالاً مع الأداة المحدثة**
-    - name: Upload APK artifact (Final Direct Path)
-      uses: actions/upload-artifact@v4 # استخدام الإصدار الرابع لتجنب مشكلة v3 
+    # 3. **الرفع: البحث الشامل والاجباري في كامل مساحة العمل**
+    - name: Upload APK artifact (Final Recursive Search)
+      uses: actions/upload-artifact@v4 # استخدام أحدث أداة رفع
       with:
         name: MetoOS-Ready-APK
-        # المسار الذي يجب أن يكون فيه الملف بعد فك الضغط والبناء
-        path: build_root/MetoOS-Project-Files/app/build/outputs/apk/debug/app-debug.apk 
+        # البحث الشامل في كامل مساحة العمل (Workspace) عن أي ملف .apk
+        path: ${{ github.workspace }}/**/*.apk 
